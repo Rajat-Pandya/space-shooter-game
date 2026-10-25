@@ -58,8 +58,8 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/nebula-defender.git
-   cd nebula-defender
+   git clone https://github.com/Rajat-Pandya/space-shooter-game.git
+   cd space-shooter-game
    ```
 
 2. **Install dependencies**
@@ -103,11 +103,22 @@ pip install -r requirements.txt
 | `↓` / `S` | Move down |
 
 ### Actions
-| Key | Action |
-|-----|--------|
+| Key / Input | Action |
+|-------------|--------|
 | `Space` | Shoot |
 | `Esc` | Pause / Back |
-| `Enter` | Select / Confirm |
+| `Left Mouse Click` / `Enter` | Select / Activate UI buttons |
+
+---
+
+## Settings Configuration
+
+The game features in-game settings management persisted in `data/settings.json`:
+- **Master Volume**: Global audio level slider (0% to 100%)
+- **Music Volume**: Background music volume slider
+- **SFX Volume**: Sound effects volume slider
+- **Fullscreen**: Toggle between fullscreen and windowed display (applied immediately)
+- **VSync**: Toggle vertical synchronization (applied immediately)
 
 ---
 
@@ -115,53 +126,51 @@ pip install -r requirements.txt
 
 ```
 SpaceShooterGame/
-├── main.py                 # Entry point and game loop
+├── main.py                 # Entry point and scene state loop
 │
-├── assets/                 # Game assets
-│   ├── images/            # Sprites and graphics
-│   ├── sounds/            # Sound effects
-│   ├── music/             # Background music
-│   └── fonts/             # Custom fonts
+├── assets/                 # Tracked game assets
+│   ├── images/            # Sprites and background graphics
+│   ├── sounds/            # Laser and explosion SFX
+│   └── music/             # Looping background music
 │
 ├── entities/              # Game entities
 │   ├── player.py         # Player ship with health/shields
-│   ├── enemy.py          # Enemy types and AI
+│   ├── enemy.py          # Enemy archetypes and AI
 │   ├── bullet.py         # Projectile system
-│   ├── boss.py           # Boss battles
-│   └── powerup.py        # Power-up system
+│   ├── boss.py           # Multi-phase Boss enemy
+│   └── powerup.py        # Power-up drops
 │
-├── scenes/                # Game scenes
-│   ├── menu.py           # Main menu
-│   ├── gameplay.py       # Core gameplay
-│   ├── pause.py          # Pause menu
-│   ├── gameover.py       # Game over screen
+├── scenes/                # Scene state machine
+│   ├── menu.py           # Main menu scene
+│   ├── gameplay.py       # Core gameplay scene
+│   ├── pause.py          # Pause menu overlay
+│   ├── gameover.py       # Game over score screen
 │   ├── settings.py       # Settings menu
 │   ├── controls.py       # Controls display
 │   └── highscores.py     # High scores table
 │
 ├── ui/                    # User interface
-│   ├── buttons.py        # Interactive buttons
+│   ├── buttons.py        # Animated and toggle buttons, sliders
 │   ├── hud.py            # In-game HUD
 │   └── menus.py          # Menu components
 │
 ├── effects/               # Visual effects
-│   ├── particles.py      # Particle system
-│   └── screen_shake.py   # Camera shake
+│   ├── particles.py      # Particle burst system
+│   └── screen_shake.py   # Directional screen shake
 │
-├── managers/              # Game managers
+├── managers/              # Core managers
 │   ├── settings_manager.py   # Settings persistence
-│   ├── score_manager.py      # High scores
-│   └── audio_manager.py      # Audio control
+│   ├── score_manager.py      # High scores persistence
+│   └── audio_manager.py      # Centralized audio routing
 │
 ├── utils/                 # Utilities
-│   ├── constants.py     # Game constants
-│   ├── helpers.py       # Utility functions
-│   └── asset_loader.py  # Asset loading
+│   ├── constants.py     # Screen bounds, colors, enums
+│   ├── helpers.py       # Math and collision helpers
+│   └── asset_loader.py  # Cached asset loader with fallback
 │
-├── data/                  # Save data (generated)
+├── data/                  # Generated local save data (git-ignored)
 │   ├── settings.json
-│   ├── highscores.json
-│   └── progress.json
+│   └── highscores.json
 │
 └── .gitignore            # Git ignore rules
 ```
@@ -172,47 +181,41 @@ SpaceShooterGame/
 
 ### Clean OOP Architecture
 - Modular design with clear separation of concerns
-- Entity-Component-System inspired structure
-- Scene-based state management
+- Scene-based state machine pattern
+- Entity-Component inspired structure
 
 ### Performance Optimized
-- Object pooling for particles
-- Efficient collision detection
-- Capped at 60 FPS with vsync
+- Capped at 60 FPS with vsync support
+- Object pooling and capacity limits for particles and bullets
+- Inset hitbox collision boundaries
 
-### Extensible Design
-- Easy to add new enemy types
-- Plugin-ready power-up system
-- Configurable difficulty settings
-
-### Modern Python Practices
-- Type hints throughout
-- Docstrings for all classes
-- Clean code principles
+### Dynamic Configuration
+- Immediate display mode updates (fullscreen / vsync)
+- Centralized audio routing through AudioManager
+- JSON persistence for settings and high scores
 
 ---
 
-## Roadmap
+## Roadmap & Known Limitations
 
 ### Completed
-- [x] Core gameplay mechanics
-- [x] Multiple enemy types
-- [x] Boss battles
-- [x] Power-up system
-- [x] Particle effects
-- [x] Screen shake
-- [x] Settings persistence
-- [x] High score system
-- [x] Professional UI
+- [x] Core gameplay mechanics and player ship controls
+- [x] Diverse enemy archetypes (Basic, Fast, Tank, Shooter, Dodger)
+- [x] Multi-phase Boss encounters (5 progressive health phases)
+- [x] Power-up system (Rapid fire, double bullets, shield, health, speed boost, laser)
+- [x] Visual effects (directional screen shake and particle bursts)
+- [x] Centralized audio system routed through AudioManager
+- [x] Dynamic display mode switching (Fullscreen & VSync)
+- [x] Persistent settings and top-10 high scores
+- [x] Polished scene navigation and animated menus
 
-### Planned
-- [ ] Additional boss types
-- [ ] More power-ups
-- [ ] Weapon upgrades
-- [ ] Level progression
-- [ ] Achievements system
-- [ ] Controller support
-- [ ] Online leaderboards
+### Known Limitations & Planned Specs
+- [ ] **Save and Resume Session**: Mid-game progress save/load (`data/progress.json`) is not yet implemented.
+- [ ] **Difficulty Selector UI**: Difficulty settings exist in engine constants (`DIFFICULTY_SETTINGS`), but no UI selector is provided in menus.
+- [ ] **Laser Power-Up Scaling**: Laser projectile damage is currently fixed to default bullet damage (1).
+- [ ] **Enemy-Escape Penalty**: Enemies flying past the screen bottom currently despawn without score or health penalty.
+- [ ] **Unit Tests & CI**: Automated test suite (`pytest`) and GitHub Actions CI workflow are not yet configured.
+- [ ] **Dead UI Components**: Menu helpers (`Menu`, `VerticalMenu`, `TabMenu`) and `FloatingTextManager` are preserved in codebase but unreferenced.
 
 ---
 
@@ -226,14 +229,7 @@ SpaceShooterGame/
 
 ## Credits
 
-### Original Assets
-- Spaceship, Enemy, and Bullet sprites
-- Sound effects (laser.wav, explosion.wav)
-- Background music (background.wav)
-- Background image (spc.jpg)
-
-### Development
-Enhanced from a basic tutorial project into a professional arcade game.
+<!-- TODO: asset sources and tutorial credit -->
 
 ---
 
