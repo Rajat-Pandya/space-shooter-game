@@ -42,7 +42,16 @@
 ## Screenshots
 
 <p align="center">
-  <em>Gameplay screenshots coming soon!</em>
+  <img src="assets/images/ScreenShots/Screenshot%202026-10-25%20145442.png" alt="Nebula Defender Gameplay Action" width="800">
+</p>
+
+<p align="center">
+  <img src="assets/images/ScreenShots/Screenshot%202026-10-25%20145309.png" alt="Main Menu Screen" width="390">
+  <img src="assets/images/ScreenShots/Screenshot%202026-10-25%20145332.png" alt="Game Controls Screen" width="390">
+</p>
+
+<p align="center">
+  <img src="assets/images/ScreenShots/Screenshot%202026-10-25%20145404.png" alt="High Scores Screen" width="500">
 </p>
 
 ---
