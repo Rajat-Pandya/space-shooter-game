@@ -67,12 +67,11 @@ class MainMenu:
         """Create menu buttons."""
         button_width = 250
         button_height = 50
-        start_y = SCREEN_HEIGHT // 2 - 50
+        start_y = SCREEN_HEIGHT // 2 - 40
         spacing = 60
         
         buttons_data = [
             ("START GAME", lambda: setattr(self, 'next_state', GameState.PLAYING)),
-            ("CONTINUE", lambda: setattr(self, 'next_state', GameState.PLAYING)),
             ("SETTINGS", lambda: setattr(self, 'next_state', GameState.SETTINGS)),
             ("CONTROLS", lambda: setattr(self, 'next_state', GameState.CONTROLS)),
             ("HIGH SCORES", lambda: setattr(self, 'next_state', GameState.HIGHSCORES)),
@@ -95,16 +94,6 @@ class MainMenu:
                 callback=callback
             )
             self.buttons.append(button)
-        
-        # Disable continue button if no save exists
-        if not self._has_save_data():
-            self.buttons[1].set_enabled(False)
-    
-    def _has_save_data(self) -> bool:
-        """Check if save data exists."""
-        import os
-        from utils.constants import PROGRESS_FILE
-        return os.path.exists(PROGRESS_FILE)
     
     def handle_event(self, event: pygame.event.Event) -> bool:
         """Handle input events."""
