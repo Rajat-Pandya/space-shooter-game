@@ -43,6 +43,7 @@ data/
 *.json
 !package.json
 !tsconfig.json
+context.md
 
 # Pygame
 *.wav
@@ -54,6 +55,10 @@ data/
 *.gif
 *.bmp
 *.ico
+
+# Allow assets inside assets/
+!assets/
+!assets/**
 
 # Logs
 *.log
