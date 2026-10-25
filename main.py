@@ -51,6 +51,7 @@ class Game:
         self.screen_width = self.settings.get('screen_width', SCREEN_WIDTH)
         self.screen_height = self.settings.get('screen_height', SCREEN_HEIGHT)
         self.fullscreen = self.settings.get('fullscreen', False)
+        self.vsync = self.settings.get('vsync', True)
         
         flags = pygame.DOUBLEBUF
         if self.fullscreen:
@@ -59,7 +60,7 @@ class Game:
         self.screen = pygame.display.set_mode(
             (self.screen_width, self.screen_height),
             flags,
-            vsync=self.settings.get('vsync', True)
+            vsync=self.vsync
         )
         
         pygame.display.set_caption(GAME_TITLE)
@@ -269,6 +270,23 @@ class Game:
         self.audio_manager.set_master_volume(self.settings.get('volume', 0.7))
         self.audio_manager.set_music_volume(self.settings.get('music_volume', 0.5))
         self.audio_manager.set_sfx_volume(self.settings.get('sfx_volume', 0.8))
+        
+        # Apply display mode changes immediately
+        new_fullscreen = self.settings.get('fullscreen', False)
+        new_vsync = self.settings.get('vsync', True)
+        if new_fullscreen != self.fullscreen or new_vsync != self.vsync:
+            self.fullscreen = new_fullscreen
+            self.vsync = new_vsync
+            flags = pygame.DOUBLEBUF
+            if self.fullscreen:
+                flags |= pygame.FULLSCREEN
+            self.screen = pygame.display.set_mode(
+                (self.screen_width, self.screen_height),
+                flags,
+                vsync=self.vsync
+            )
+            if self.gameplay_scene:
+                self.gameplay_scene.screen = self.screen
         
         if result:
             self.previous_state = self.current_state
