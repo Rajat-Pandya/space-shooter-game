@@ -53,6 +53,8 @@ class GameplayScene:
         self.hud = HUD()
         
         # Effects
+        self.particles_enabled = self.settings.get('particles_enabled', True)
+        self.screen_shake_enabled = self.settings.get('screen_shake_enabled', True)
         self.particle_manager = ParticleManager()
         self.screen_shake = ScreenShake()
         
@@ -164,8 +166,10 @@ class GameplayScene:
         self.powerup_manager.update(dt)
         
         # Update effects
-        self.particle_manager.update(dt)
-        self.screen_shake.update(dt)
+        if self.particles_enabled:
+            self.particle_manager.update(dt)
+        if self.screen_shake_enabled:
+            self.screen_shake.update(dt)
         
         # Update HUD
         self.hud.update(dt, self.score, self.wave)
@@ -195,6 +199,21 @@ class GameplayScene:
             self.wave += 1
             self.hud.add_message(f"BOSS DEFEATED! Wave {self.wave}", COLORS['GOLD'])
     
+    def _spawn_explosion(self, x: float, y: float, intensity: int = 50, colors=None) -> None:
+        """Spawn explosion particles if enabled."""
+        if self.particles_enabled:
+            self.particle_manager.spawn_explosion(x, y, intensity, colors)
+
+    def _spawn_hit(self, x: float, y: float, color=None) -> None:
+        """Spawn hit particles if enabled."""
+        if self.particles_enabled:
+            self.particle_manager.spawn_hit(x, y, color)
+
+    def _shake(self, amount: float) -> None:
+        """Trigger screen shake if enabled."""
+        if self.screen_shake_enabled:
+            self.screen_shake.shake(amount)
+            
     def _check_collisions(self) -> None:
         """Check and handle all collisions."""
         # Player bullets hitting enemies
@@ -213,16 +232,16 @@ class GameplayScene:
                     if enemy.take_damage(bullet.damage):
                         # Enemy destroyed
                         self.score += enemy.score_value
-                        self.particle_manager.spawn_explosion(enemy.x, enemy.y, enemy.size)
+                        self._spawn_explosion(enemy.x, enemy.y, enemy.size)
                         self.audio_manager.play_sound("explosion.wav", volume=0.3)
                         
                         # Chance to spawn power-up
                         self.powerup_manager.try_spawn_from_enemy(enemy.x, enemy.y)
                     else:
                         # Enemy hit
-                        self.particle_manager.spawn_hit(bullet.x, bullet.y)
+                        self._spawn_hit(bullet.x, bullet.y)
                     
-                    self.screen_shake.shake(2)
+                    self._shake(2)
                     break
             
             # Check boss
@@ -232,11 +251,11 @@ class GameplayScene:
                     
                     if self.boss.take_damage(bullet.damage):
                         # Boss defeated
-                        self.particle_manager.spawn_explosion(self.boss.x, self.boss.y, 100)
+                        self._spawn_explosion(self.boss.x, self.boss.y, 100)
                         self.audio_manager.play_sound("explosion.wav", volume=0.8)
-                        self.screen_shake.shake(10)
+                        self._shake(10)
                     else:
-                        self.particle_manager.spawn_hit(bullet.x, bullet.y)
+                        self._spawn_hit(bullet.x, bullet.y)
         
         # Enemy bullets hitting player
         enemy_bullets = [b for b in self.bullet_manager.bullets 
@@ -248,23 +267,23 @@ class GameplayScene:
                 
                 if self.player.take_damage(bullet.damage):
                     # Game over handled in update
-                    self.particle_manager.spawn_explosion(self.player.x, self.player.y, 50)
+                    self._spawn_explosion(self.player.x, self.player.y, 50)
                     self.audio_manager.play_sound("explosion.wav", volume=0.5)
-                    self.screen_shake.shake(15)
+                    self._shake(15)
                 else:
-                    self.particle_manager.spawn_hit(bullet.x, bullet.y)
-                    self.screen_shake.shake(5)
+                    self._spawn_hit(bullet.x, bullet.y)
+                    self._shake(5)
         
         # Enemies colliding with player
         for enemy in self.enemy_manager.enemies:
             if enemy.active and enemy.get_rect().colliderect(self.player.get_rect()):
                 if self.player.take_damage(enemy.damage):
-                    self.particle_manager.spawn_explosion(self.player.x, self.player.y, 50)
+                    self._spawn_explosion(self.player.x, self.player.y, 50)
                     self.audio_manager.play_sound("explosion.wav", volume=0.5)
                 
                 enemy.active = False
-                self.particle_manager.spawn_explosion(enemy.x, enemy.y, enemy.size)
-                self.screen_shake.shake(8)
+                self._spawn_explosion(enemy.x, enemy.y, enemy.size)
+                self._shake(8)
         
         # Power-ups
         collected = self.powerup_manager.check_collision_with_rect(self.player.get_rect())
@@ -281,14 +300,15 @@ class GameplayScene:
     def render(self) -> None:
         """Render the gameplay scene."""
         # Apply screen shake
-        shake_x, shake_y = self.screen_shake.get_offset()
+        shake_x, shake_y = self.screen_shake.get_offset() if self.screen_shake_enabled else (0, 0)
         
         # Background
         self.screen.blit(self.background, (shake_x, shake_y + self.bg_offset - SCREEN_HEIGHT))
         self.screen.blit(self.background, (shake_x, shake_y + self.bg_offset))
         
         # Particles (behind entities)
-        self.particle_manager.render(self.screen)
+        if self.particles_enabled:
+            self.particle_manager.render(self.screen)
         
         # Power-ups
         self.powerup_manager.render(self.screen)
