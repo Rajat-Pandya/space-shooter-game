@@ -89,6 +89,7 @@ class AssetLoader:
         """Play a sound effect."""
         sound = cls.load_sound(name, volume)
         if sound:
+            sound.set_volume(clamp(volume, 0.0, 1.0))
             sound.play()
             return True
         return False

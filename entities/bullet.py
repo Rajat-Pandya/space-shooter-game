@@ -129,7 +129,8 @@ class BulletManager:
         # Play sound
         if bullet_type in [BulletType.PLAYER_NORMAL, BulletType.PLAYER_RAPID, 
                           BulletType.PLAYER_DOUBLE]:
-            AssetLoader.play_sound("laser.wav", volume=0.3)
+            from managers import AudioManager
+            AudioManager().play_sound("laser.wav", volume=0.3)
         
         return bullet
     

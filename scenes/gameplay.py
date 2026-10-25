@@ -16,6 +16,7 @@ from entities import Player, EnemyManager, BulletManager, PowerUpManager, Boss
 from entities.powerup import PowerUpType
 from ui import HUD
 from effects import ParticleManager, ScreenShake
+from managers import AudioManager
 
 
 class GameplayScene:
@@ -54,6 +55,9 @@ class GameplayScene:
         # Effects
         self.particle_manager = ParticleManager()
         self.screen_shake = ScreenShake()
+        
+        # Audio
+        self.audio_manager = AudioManager()
         
         # Input
         self.keys: Dict[int, bool] = {}
@@ -181,7 +185,7 @@ class GameplayScene:
             self.boss = Boss(SCREEN_WIDTH // 2, 150, self.difficulty)
             self.boss_spawned = True
             self.hud.add_message("WARNING: BOSS APPROACHING!", COLORS['RED'])
-            AssetLoader.play_sound("explosion.wav", volume=0.5)
+            self.audio_manager.play_sound("explosion.wav", volume=0.5)
         
         # Check boss defeat
         if self.boss and not self.boss.active:
@@ -210,7 +214,7 @@ class GameplayScene:
                         # Enemy destroyed
                         self.score += enemy.score_value
                         self.particle_manager.spawn_explosion(enemy.x, enemy.y, enemy.size)
-                        AssetLoader.play_sound("explosion.wav", volume=0.3)
+                        self.audio_manager.play_sound("explosion.wav", volume=0.3)
                         
                         # Chance to spawn power-up
                         self.powerup_manager.try_spawn_from_enemy(enemy.x, enemy.y)
@@ -229,7 +233,7 @@ class GameplayScene:
                     if self.boss.take_damage(bullet.damage):
                         # Boss defeated
                         self.particle_manager.spawn_explosion(self.boss.x, self.boss.y, 100)
-                        AssetLoader.play_sound("explosion.wav", volume=0.8)
+                        self.audio_manager.play_sound("explosion.wav", volume=0.8)
                         self.screen_shake.shake(10)
                     else:
                         self.particle_manager.spawn_hit(bullet.x, bullet.y)
@@ -245,7 +249,7 @@ class GameplayScene:
                 if self.player.take_damage(bullet.damage):
                     # Game over handled in update
                     self.particle_manager.spawn_explosion(self.player.x, self.player.y, 50)
-                    AssetLoader.play_sound("explosion.wav", volume=0.5)
+                    self.audio_manager.play_sound("explosion.wav", volume=0.5)
                     self.screen_shake.shake(15)
                 else:
                     self.particle_manager.spawn_hit(bullet.x, bullet.y)
@@ -256,7 +260,7 @@ class GameplayScene:
             if enemy.active and enemy.get_rect().colliderect(self.player.get_rect()):
                 if self.player.take_damage(enemy.damage):
                     self.particle_manager.spawn_explosion(self.player.x, self.player.y, 50)
-                    AssetLoader.play_sound("explosion.wav", volume=0.5)
+                    self.audio_manager.play_sound("explosion.wav", volume=0.5)
                 
                 enemy.active = False
                 self.particle_manager.spawn_explosion(enemy.x, enemy.y, enemy.size)
@@ -268,7 +272,7 @@ class GameplayScene:
             self.player.apply_powerup(collected.type, POWERUP_DURATION)
             self.hud.add_message(f"{collected.type.name.replace('_', ' ').title()}!", 
                                COLORS['GREEN'])
-            AssetLoader.play_sound("laser.wav", volume=0.2)
+            self.audio_manager.play_sound("laser.wav", volume=0.2)
         
         # Wave progression
         if self.enemy_manager.wave_timer >= 30:
